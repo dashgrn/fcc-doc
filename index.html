@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <title>FCC: Tech Docs</title>
+</head>
+
+<body>
+
+  <nav id="navbar">
+    <header>Node Js</header>
+    <ul>
+      <li><a class="nav-link" href="#what_is_it?_an_introduction">What is it? an introduction</a></li>
+      <li>
+        <a class="nav-link" href="#Requirements?">Requirements?</a>
+      </li>
+      <li>
+        <a class="nav-link" href="#What_about_JavaScript?">What about JavaScript?</a>
+      </li>
+      <li><a class="nav-link" href="#Internals">Internals</a></li>
+      <li><a class="nav-link" href="#Threading">Threading</a></li>
+      <li>
+        <a class="nav-link" href="#V8">V8</a>
+      </li>
+      <li><a class="nav-link" href="#package_management">Package Management</a></li>
+      <li><a class="nav-link" href="#Unified_API">Unified API</a></li>
+      <li><a class="nav-link" href="#Event_loop">Event loop</a></li>
+      <li><a class="nav-link" href="#WebAssembly">WebAssembly</a></li>
+      <li>
+        <a class="nav-link" href="#Native_bindings">Native bindings</a>
+      </li>
+      <li><a class="nav-link" href="#The_Node.js_Event_Loop">The Node.js Event Loop</a></li>
+      <li>
+        <a class="nav-link" href="#the_call_stack">The Call Stack</a>
+      </li>
+      <li>
+        <a class="nav-link" href="#C++_addons">C++ Addons</a>
+      </li>
+      <li>
+        <a class="nav-link" href="#Worker_support">Worker Support</a>
+      </li>
+    </ul>
+  </nav>
+  <main id="main-doc">
+    <section class="main-section" id="what_is_it?_an_introduction">
+      <header>What is it? An introduction</header>
+      <article>
+        <p>
+          As an asynchronous event-driven JavaScript runtime, Node.js is designed to build scalable network
+          applications. In the following "hello world" example, many connections can be handled concurrently. Upon each
+          connection, the callback is fired, but if there is no work to be done, Node.js will sleep.
+        </p>
+
+        <p>
+          This is in contrast to today's more common concurrency model, in which OS threads are employed. Thread-based
+          networking is relatively inefficient and very difficult to use. Furthermore, users of Node.js are free from
+          worries of dead-locking the process, since there are no locks. Almost no function in Node.js directly performs
+          I/O, so the process never blocks except when the I/O is performed using synchronous methods of Node.js
+          standard library. Because nothing blocks, scalable systems are very reasonable to develop in Node.js.
+        </p>
+
+      </article>
+    </section>
+    <section class="main-section" id="Requirements?">
+      <header>Requirements?</header>
+      <article>
+        <p>Basic knowledge in:</p>
+
+        <ul>
+          <li>
+            How the modern internet works.
+          </li>
+          <li>Light knowledge in HTML.</li>
+          <li>
+            Be able to understand basic logic and procedures.
+          </li>
+        </ul>
+      </article>
+    </section>
+    <section class="main-section" id="What_about_JavaScript?">
+      <header>What about JavaScript?</header>
+      <article>
+        <p>
+          Though .js is the standard filename extension for JavaScript code, the name "Node.js" doesn't refer to a
+          particular file in this context and is merely the name of the product. Node.js has an event-driven
+          architecture capable of asynchronous I/O. These design choices aim to optimize throughput and scalability in
+          web applications with many input/output operations, as well as for real-time Web applications (e.g., real-time
+          communication programs and browser games).
+
+          The Node.js distributed development project was previously governed by the Node.js Foundation, and has now
+          merged with the JS Foundation to form the OpenJS Foundation, which is facilitated by the Linux Foundation's
+          Collaborative Projects program.
+        </p>
+      </article>
+    </section>
+    <section class="main-section" id="Internals">
+      <header>Internals</header>
+      <article>
+        Node.js uses libuv underhood to handle asynchronous events. Libuv is an abstraction layer for network and file
+        system functionality on both Windows and POSIX-based systems such as Linux, macOS, OSS on NonStop, and Unix.
+
+      </article>
+    </section>
+    <section class="main-section" id="Threading">
+      <header>Threading</header>
+      <p>
+        Node.js operates on a single-thread event loop, using non-blocking I/O calls, allowing it to support tens of
+        thousands of concurrent connections without incurring the cost of thread context switching. The design of
+        sharing a single thread among all the requests that use the observer pattern is intended for building highly
+        concurrent applications, where any function performing I/O must use a callback. To accommodate the
+        single-threaded event loop, Node.js uses the libuv library—which, in turn, uses a fixed-sized thread pool that
+        handles some of the non-blocking asynchronous I/O operations.
+      </p>
+      <p>
+        A thread pool handles the execution of parallel tasks in Node.js. The main thread function call posts tasks to
+        the shared task queue, which threads in the thread pool pull and execute. Inherently non-blocking system
+        functions such as networking translate to kernel-side non-blocking sockets, while inherently blocking system
+        functions such as file I/O run in a blocking way on their own threads. When a thread in the thread pool
+        completes a task, it informs the main thread of this, which in turn, wakes up and executes the registered
+        callback.
+      </p>
+      <p>
+        A downside of this single-threaded approach is that Node.js doesn't allow vertical scaling by increasing the
+        number of CPU cores of the machine it is running on without using an additional module, such as cluster,
+        StrongLoop Process Manager, or pm2. However, developers can increase the default number of threads in
+        the libuv thread pool. The server operating system (OS) is likely to distribute these threads across multiple
+        cores. Another problem is that long-lasting computations and other CPU-bound tasks freeze the entire
+        event-loop until completion.
+      </p>
+    </section>
+    <section class="main-section" id="V8">
+      <header>V8</header>
+      <article>
+        Not a regular combustion engine
+        <p>
+          V8 is the JavaScript execution engine which was initially built for Google Chrome. It was then open-sourced by
+          Google in 2008. Written in C++, V8 compiles JavaScript source code to native machine code at runtime. [7] As
+          of 2016, it also includes Ignition, a bytecode interpreter.
+        </p>
+      </article>
+    </section>
+    <section class="main-section" id="package_management">
+      <header>Package management</header>
+      <article>
+        <p>
+          npm is the pre-installed package manager for the Node.js server platform. It installs Node.js programs from
+          the npm registry, organizing the installation and management of third-party Node.js programs. Packages in the
+          npm registry can range from simple helper libraries such as Lodash to task runners such as Grunt.
+        </p>
+
+      </article>
+    </section>
+    <section class="main-section" id="Unified_API">
+      <header>Unified API</header>
+      <article>
+        <p>
+          Node.js can be combined with a browser, a database that supports JSON data (such as Postgres,[74] MongoDB, or
+          CouchDB) and JSON for a unified JavaScript development stack. With the adaptation of what were essentially
+          server-side development patterns such as MVC, MVP, MVVM, etc., Node.js allows the reuse of the same model and
+          service interface between client side and server side.
+        </p>
+      </article>
+    </section>
+    <section class="main-section" id="Event_loop">
+      <header>Event loop</header>
+      <article>
+        <p>
+          Node.js registers with the operating system so the OS notifies it of connections and issues a callback. Within
+          the Node.js runtime, each connection is a small heap allocation. Traditionally, relatively heavyweight OS
+          processes or threads handled each connection. Node.js uses an event loop for scalability, instead of processes
+          or threads. In contrast to other event-driven servers, Node.js's event loop does not need to be called
+          explicitly. Instead, callbacks are defined, and the server automatically enters the event loop at the end of
+          the callback definition. Node.js exits the event loop when there are no further callbacks to be performed.
+        </p>
+        <p>
+          simple event looop explanation
+        </p>
+        <code>
+          const bar = () => console.log('bar')
+
+const baz = () => console.log('baz')
+
+const foo = () => {
+  console.log('foo')
+  bar()
+  baz()
+}
+
+foo()
+        </code>
+
+        <p>
+          Queuing function execution
+        </p>
+        <p>
+          Let's see how to defer a function until the stack is clear.
+
+          The use case of setTimeout(() => {}, 0) is to call a function, but execute it once every other function in the
+          code has executed.
+
+          Take this example:
+        </p>
+        <code>
+          const bar = () => console.log('bar')
+
+const baz = () => console.log('baz')
+
+const foo = () => {
+  console.log('foo')
+  setTimeout(bar, 0)
+  baz()
+}
+
+foo()
+        </code>
+
+
+        <p>process.nextTick()</p>
+        <p>
+          As you try to understand the Node.js event loop, one important part of it is process.nextTick().
+
+          Every time the event loop takes a full trip, we call it a tick.
+
+          When we pass a function to process.nextTick(), we instruct the engine to invoke this function at the end of
+          the current operation, before the next event loop tick starts:
+        </p>
+        <code>
+          process.nextTick(() => {
+            //do something
+          })
+        </code>
+        <p>The event loop is busy processing the current function code.
+
+        </p>
+        <p>calling <code>setTimeOut(() => {}, 0)</code> will execute the function at the end of next tick, much later
+          than when using nextTick() which prioritizes the call and executes it just before the beginning of the next
+          tick.</p>
+      </article>
+    </section>
+    <section class="main-section" id="WebAssembly">
+      <header>WebAssembly</header>
+      <article>
+        <p>Node.js supports WebAssembly and as of Node 14 has experimental support of WASI, the WebAssembly System
+          Interface.
+        </p>
+      </article>
+    </section>
+    <section class="main-section" id="Native_bindings">
+      <header>Native bindings</header>
+      <article>
+        <p>
+          Node.js provides a way to make "addons" via a C-based API called N-API which can be used to produce loadable
+          (importable) .node modules from source code written in C/C++. The modules can be directly loaded into memory
+          and
+          executed from within JS environment as simple CommonJS modules. The implementation of the N-API relies on
+          internal C/C++
+          Node.js and V8 objects requiring users to import (#include) Node.js specific headers into their native source
+          code.
+          As Node.js platform constantly evolves the API compatibility is subject to changes and may get broken
+          sometimes by a new
+          version (as consequence modules have to be built against specific Node.js versions to work correctly). To
+          address the
+          issue third parties have introduced open-sourced С/С++ wrappers on top of the API that partially alleviate the
+          problem.
+          They simplify interfaces but as side effect they may also introduce complexity which maintainers have to deal
+          with. Even
+          though the core functionality of Node.js resides in a JavaScript built-in library, modules written in C++ can
+          be used to
+          enhance capabilities and to improve performance of applications.
+        </p>
+      </article>
+    </section>
+    <section class="main-section" id="The_Node.js_Event_Loop">
+      <header>The Node.js Event Loop</header>
+      <article>
+        The Event Loop is one of the most important aspects to understand about Node.js.
+        <p>
+          Blocking the event loop
+          Any JavaScript code that takes too long to return back control to the event loop will block the execution of
+          any
+          JavaScript code in the page, even block the UI thread, and the user cannot click around, scroll the page, and
+          so on.
+
+          Almost all the I/O primitives in JavaScript are non-blocking. Network requests, filesystem operations, and so
+          on. Being
+          blocking is the exception, and this is why JavaScript is based so much on callbacks, and more recently on
+          promises and
+          async/await.
+        </p>
+      </article>
+    </section>
+    <section class="main-section" id="the_call_stack">
+      <header>The call stack</header>
+      <article>
+        The call stack is a LIFO (Last In, First Out) stack.
+        The event loop continuously checks the call stack to see if there's any function that needs to run.
+        While doing so, it adds any function call it finds to the call stack and executes each one in order.
+      </article>
+    </section>
+    <section class="main-section" id="C++_addons">
+      <header>C++ addons</header>
+      <article>
+        Addons are dynamically-linked shared objects written in C++. The require() function can load addons as ordinary
+        Node.js
+        modules. Addons provide an interface between JavaScript and C/C++ libraries.
+        <p>
+          This "Hello world" example is a simple addon, written in C++, that is the equivalent of the following
+          JavaScript code:
+        </p>
+        <code>
+          module.exports.hello = () => 'world';
+        </code>
+        <p>
+          First, create the file hello.cc:
+        </p>
+        <code>
+          // addon.cc
+#include <node.h>
+#include <assert.h>
+#include <stdlib.h>
+
+using node::AddEnvironmentCleanupHook;
+using v8::HandleScope;
+using v8::Isolate;
+using v8::Local;
+using v8::Object;
+
+            </code>
+      </article>
+    </section>
+
+    <section class="main-section" id="Worker_support">
+      <header>Worker Support</header>
+
+      In order to be loaded from multiple Node.js environments, such as a main thread and a Worker thread, an add-on
+      needs to either:
+      <article>
+        <ul>
+          <li>
+            Be an Node-API addon, or
+          </li>
+          <li>
+            Be declared as context-aware using NODE_MODULE_INIT() as described above
+          </li>
+          <li>
+            In order to support Worker threads, addons need to clean up any resources they may have allocated when such
+            a thread exists. This can be achieved through the usage of the AddEnvironmentCleanupHook() function:
+          </li>
+        </ul>
+        <code>
+            void AddEnvironmentCleanupHook(v8::Isolate* isolate,
+                               void (*fun)(void* arg),
+                               void* arg);
+          </code>
+      </article>
+    </section>
+
+  </main>
+
+
+</body>
+
+</html>
